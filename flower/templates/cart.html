@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <h1>Your shopping cart</h1>
+    <table class="table table-bordered table-hover table-sortable">
+        <thead>
+            <tr>
+                <th class="text-center">Image</th>
+                <th class="text-center">Product</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-center">Remove</th>
+                <th class="text-center">Unit price</th>
+                <th class="text-center">Price</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in cart %}
+            {% with product=item.product %}
+            <tr>
+                <td>
+                    <a href="{{ product.get_absolute_url }}">
+                        <img style height="200" width="200" src="{% if product.image %}{{ product.image.url }}{% else %}{% static "products/a.jpg" %}{% endif %}">
+                    </a>
+                </td>
+                <td>{{ product.name }}</td>
+                <td>
+                    <form action="{% url "cart:cart_add" product.id %}" method="post">
+                        {{ item.update_quantity_form.quantity }}
+                        {{ item.update_quantity_form.update }}
+                        <input class="form-control" type="submit" value="Update">
+                        {% csrf_token %}
+                    </form>
+                </td>
+                <td><a href="{% url "cart:cart_remove" product.id %}">Remove</a></td>
+                <td class="num">${{ item.price }}</td>
+                <td class="num">${{ item.total_price }}</td>
+            </tr>
+            {% endwith %}
+        {% endfor %}
+        <tr class="total">
+            <td>Total</td>
+            <td colspan="4"></td>
+            <td class="num">${{ cart.get_total_price }}</td>
+        </tr>
+        </tbody>
+    </table>
+    <p class="text-right">
+        <a href="{% url "orders:order_create" %}" class="btn btn-dark btn-lg">Checkout</a><br>
+        <a href="{% url "shop:product_list" %}" class="btn btn-dark btn-lg">Continue shopping</a>
+
+    </p>
+{% endblock %}
